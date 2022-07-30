@@ -3,9 +3,9 @@ package com.zinworks.atm.service;
 import com.zinworks.atm.exception.ResponseException;
 import com.zinworks.atm.model.User;
 import com.zinworks.atm.model.Balance;
+import com.zinworks.atm.model.Withdrawal;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,7 +52,7 @@ public class AtmService {
         );
     }
 
-    public Balance withdraw(String accountNumber, int pin, int amount){
+    public Withdrawal withdraw(String accountNumber, int pin, int amount){
         User user = atmHashMap.get(accountNumber);
 
         if (user == null){
@@ -61,12 +61,16 @@ public class AtmService {
         if (user.getPin() != pin){
             throw new ResponseException(PIN_NOT_VALID);
         }
-
+        if (amount < 5 || amount%5 != 0){
+            throw new ResponseException(NOT_VALID_AMOUNT);
+        }
         if (user.getBalance() + user.getOverdraft() < amount){
             throw new ResponseException(NOT_ENOUGH_AMOUNT);
         }
 
-        // 1000 , 900 + 200
+        int[] banknotesWithdrawn = processWithdraw(amount);
+
+        // 900, 800 200
         // 50, 0 100
         if (amount > user.getBalance()){
             user.setOverdraft(user.getOverdraft() - (amount - user.getBalance()));
@@ -76,42 +80,50 @@ public class AtmService {
             user.setBalance(user.getBalance() - amount);
         }
 
-        processWithdraw(amount);
-        atmHashMap.replace(accountNumber, user);
+        //atmHashMap.replace(accountNumber, user);
 
-        return new Balance(
-                    user.getAccountNumber(),
-                    user.getBalance(),
-                    user.getBalance() + user.getOverdraft()
+        return new Withdrawal(
+                user.getAccountNumber(),
+                user.getBalance(),
+                user.getBalance() + user.getOverdraft(),
+                banknotesWithdrawn
             );
     }
 
-    public void processWithdraw(int amount){
-        if (amount%5 != 0){
-            throw new ResponseException(NOT_VALID_AMOUNT);
-        }
+    private int[] processWithdraw(int amount){
+        int[] localBanknotes = new int[4];
+        int[] banknotesWithdrawn = new int[4];
+
+        System.arraycopy(banknotes, 0, localBanknotes, 0, 4);
 
         while (amount > 0){
-            if (amount%50 == 0 && banknotes[0] > 0){
-                banknotes[0]--;
+            if (amount >= 50 && localBanknotes[0] > 0){
+                localBanknotes[0]--;
+                banknotesWithdrawn[0]++;
                 amount -= 50;
             }
-            else if (amount%20 == 0 && banknotes[1] > 0){
-                banknotes[1]--;
+            else if (amount >= 20 && localBanknotes[1] > 0){
+                localBanknotes[1]--;
+                banknotesWithdrawn[1]++;
                 amount -= 20;
             }
-            else if (amount%10 == 0 && banknotes[2] > 0){
-                banknotes[2]--;
+            else if (amount >= 10 && localBanknotes[2] > 0){
+                localBanknotes[2]--;
+                banknotesWithdrawn[2]++;
                 amount -= 10;
             }
-            else if (banknotes[3] > 0){
-                banknotes[3]--;
+            else if (localBanknotes[3] > 0){
+                localBanknotes[3]--;
+                banknotesWithdrawn[3]++;
                 amount -= 5;
             }
             else{
                 throw new ResponseException(BANKNOTES_TERMINATED);
             }
         }
+
+        System.arraycopy(localBanknotes, 0, banknotes, 0, 4);
+        return banknotesWithdrawn;
     }
 
 }
