@@ -17,6 +17,7 @@ public class AtmService {
     private final Map<String, User> atmHashMap = new HashMap<>();
     private final int[] banknotes = {10, 30, 30, 20};
 
+    //TODO: PRENDI STI DATI DALL'APPLICATION PROPERTIES
     public AtmService(){
         User firstUser = new User(
                 "123456789",
@@ -65,7 +66,7 @@ public class AtmService {
             throw new ResponseException(NOT_VALID_AMOUNT);
         }
         if (user.getBalance() + user.getOverdraft() < amount){
-            throw new ResponseException(NOT_ENOUGH_AMOUNT);
+            throw new ResponseException(NOT_ENOUGH_BALANCE);
         }
 
         int[] banknotesWithdrawn = processWithdraw(amount);
