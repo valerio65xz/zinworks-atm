@@ -70,8 +70,6 @@ public class AtmService {
 
         int[] banknotesWithdrawn = processWithdraw(amount);
 
-        // 900, 800 200
-        // 50, 0 100
         if (amount > user.getBalance()){
             user.setOverdraft(user.getOverdraft() - (amount - user.getBalance()));
             user.setBalance(0);
@@ -79,8 +77,6 @@ public class AtmService {
         else{
             user.setBalance(user.getBalance() - amount);
         }
-
-        //atmHashMap.replace(accountNumber, user);
 
         return new Withdrawal(
                 user.getAccountNumber(),

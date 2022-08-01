@@ -1,11 +1,14 @@
 package com.zinworks.atm.controller;
 
 import com.zinworks.atm.model.Balance;
+import com.zinworks.atm.model.UserInputModel;
 import com.zinworks.atm.model.Withdrawal;
 import com.zinworks.atm.service.AtmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/atm")
@@ -18,22 +21,18 @@ public class AtmController {
         this.atmService = atmService;
     }
 
-    @GetMapping("balance/{accountNumber}/{pin}")
-    public ResponseEntity<Balance> getBalance(
-            @PathVariable("accountNumber") String accountNumber,
-            @PathVariable("pin") int pin
-    ) {
-        Balance balance = atmService.getBalance(accountNumber, pin);
+    @PostMapping("balance")
+    public ResponseEntity<Balance> getBalance(@RequestBody @Valid UserInputModel userInputModel) {
+        Balance balance = atmService.getBalance(userInputModel.getAccountNumber(), userInputModel.getPin());
         return ResponseEntity.ok(balance);
     }
 
-    @GetMapping("withdraw/{accountNumber}/{pin}/{amount}")
+    @PostMapping("withdraw/{amount}")
     public ResponseEntity<Balance> withdraw(
-            @PathVariable("accountNumber") String accountNumber,
-            @PathVariable("pin") int pin,
+            @RequestBody @Valid UserInputModel userInputModel,
             @PathVariable("amount") int amount
     ) {
-        Withdrawal withdraw = atmService.withdraw(accountNumber, pin, amount);
+        Withdrawal withdraw = atmService.withdraw(userInputModel.getAccountNumber(), userInputModel.getPin(), amount);
         return ResponseEntity.ok(withdraw);
     }
 

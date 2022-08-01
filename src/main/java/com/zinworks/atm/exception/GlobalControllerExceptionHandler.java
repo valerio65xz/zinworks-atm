@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ControllerAdvice
@@ -20,26 +20,26 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(BindException ex) {
-        List<String> errors = ex.getBindingResult().getAllErrors().stream()
+        Set<String> errors = ex.getBindingResult().getAllErrors().stream()
                 .map(this::getValidationErrorMessage)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         return createErrorResponseEntity(HttpStatus.BAD_REQUEST.value(), errors);
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(HttpMessageNotReadableException ex) {
-        return createErrorResponseEntity(HttpStatus.BAD_REQUEST.value(), Collections.singletonList(ex.getMessage()));
+        return createErrorResponseEntity(HttpStatus.BAD_REQUEST.value(), Collections.singleton(ex.getMessage()));
     }
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(ResponseException ex) {
         return createErrorResponseEntity(
                 ex.getError().getHttpStatus(),
-                Collections.singletonList(ex.getError().getMessage()));
+                Collections.singleton(ex.getError().getMessage()));
     }
 
-    private ResponseEntity<ErrorResponse> createErrorResponseEntity(int status, List<String> message){
+    private ResponseEntity<ErrorResponse> createErrorResponseEntity(int status, Set<String> message){
         ErrorResponse errorResponse = new ErrorResponse();
         errorResponse.setTimestamp(LocalDateTime.now());
         errorResponse.setStatus(status);
