@@ -2,6 +2,7 @@ package com.zinworks.atm;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.CollectionType;
+import org.jeasy.random.EasyRandom;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +80,10 @@ public abstract class ControllerTest {
         String contentAsString = mvcResult.getResponse().getContentAsString();
         CollectionType listType = objectMapper.getTypeFactory().constructCollectionType(collection, response);
         return objectMapper.readValue(contentAsString, listType);
+    }
+
+    protected static <T> T random(Class<T> randomClass) {
+        return new EasyRandom().nextObject(randomClass);
     }
 
 }

@@ -43,6 +43,21 @@
             <artifactId>javax.el</artifactId>
             <version>3.0.0</version>
         </dependency>
+
+        <!-- randomClasses -->
+        <dependency>
+            <groupId>org.jeasy</groupId>
+            <artifactId>easy-random-core</artifactId>
+            <version>5.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- generatedDocs -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+            <version>1.6.4</version>
+        </dependency>
     </dependencies>
 
     <build>
