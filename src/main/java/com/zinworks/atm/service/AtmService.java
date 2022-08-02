@@ -17,7 +17,6 @@ public class AtmService {
     private final Map<String, User> atmHashMap = new HashMap<>();
     private final int[] banknotes = {10, 30, 30, 20};
 
-    //TODO: PRENDI STI DATI DALL'APPLICATION PROPERTIES
     public AtmService(){
         User firstUser = new User(
                 "123456789",
@@ -71,6 +70,7 @@ public class AtmService {
 
         int[] banknotesWithdrawn = processWithdraw(amount);
 
+        // when the amount exceeds the balance, I have also to modify the overdraft
         if (amount > user.getBalance()){
             user.setOverdraft(user.getOverdraft() - (amount - user.getBalance()));
             user.setBalance(0);
@@ -91,8 +91,11 @@ public class AtmService {
         int[] localBanknotes = new int[4];
         int[] banknotesWithdrawn = new int[4];
 
+        // this prevents the original array to be modified before check if there are banknotes left
         System.arraycopy(banknotes, 0, localBanknotes, 0, 4);
 
+        // I subtract the amount with the biggest available banknote that I can find
+        // and I add that banknote in the banknotesWithdrawn array
         while (amount > 0){
             if (amount >= 50 && localBanknotes[0] > 0){
                 localBanknotes[0]--;
@@ -119,6 +122,7 @@ public class AtmService {
             }
         }
 
+        // If my banknotes are not terminates, I save my state
         System.arraycopy(localBanknotes, 0, banknotes, 0, 4);
         return banknotesWithdrawn;
     }
